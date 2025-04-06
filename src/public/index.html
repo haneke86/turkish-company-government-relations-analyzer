@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang=\"tr\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>Türk Şirket Hükümet İlişkileri Analizi</title>
+    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css\" rel=\"stylesheet\">
+    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css\">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #ac0000 !important;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .relation-score {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .badge-high {
+            background-color: #ac0000;
+        }
+        .badge-medium {
+            background-color: #fd7e14;
+        }
+        .badge-low {
+            background-color: #6c757d;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .search-card {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div id=\"loading\" class=\"d-flex\">
+        <div class=\"text-center\">
+            <div class=\"spinner-border text-danger\" role=\"status\">
+                <span class=\"visually-hidden\">Yükleniyor...</span>
+            </div>
+            <div class=\"mt-2\">İşleniyor, lütfen bekleyin...</div>
+        </div>
+    </div>
+
+    <nav class=\"navbar navbar-expand-lg navbar-dark bg-danger\">
+        <div class=\"container\">
+            <a class=\"navbar-brand\" href=\"#\">
+                <i class=\"bi bi-graph-up\"></i> Türk Şirket Hükümet İlişkileri Analizi
+            </a>
+            <button class=\"navbar-toggler\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#navbarNav\">
+                <span class=\"navbar-toggler-icon\"></span>
+            </button>
+            <div class=\"collapse navbar-collapse\" id=\"navbarNav\">
+                <ul class=\"navbar-nav ms-auto\">
+                    <li class=\"nav-item\">
+                        <a class=\"nav-link active\" href=\"#\" id=\"nav-companies\">Şirketler</a>
+                    </li>
+                    <li class=\"nav-item\">
+                        <a class=\"nav-link\" href=\"#\" id=\"nav-analyze\">Analiz</a>
+                    </li>
+                    <li class=\"nav-item\">
+                        <a class=\"nav-link\" href=\"#\" id=\"nav-search\">Haber Ara</a>
+                    </li>
+                    <li class=\"nav-item\">
+                        <a class=\"nav-link\" href=\"#\" id=\"nav-about\">Hakkında</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class=\"container mt-4\">
+        <div id=\"alert-container\"></div>
+
+        <!-- Companies Section -->
+        <div id=\"companies-section\">
+            <div class=\"d-flex justify-content-between align-items-center mb-4\">
+                <h2><i class=\"bi bi-building\"></i> Analiz Edilmiş Şirketler</h2>
+                <div>
+                    <div class=\"input-group\">
+                        <input type=\"text\" class=\"form-control\" id=\"company-filter\" placeholder=\"Şirket ara...\">
+                        <button class=\"btn btn-outline-secondary dropdown-toggle\" type=\"button\" data-bs-toggle=\"dropdown\">
+                            Filtrele
+                        </button>
+                        <ul class=\"dropdown-menu dropdown-menu-end\">
+                            <li><a class=\"dropdown-item\" href=\"#\" data-filter=\"\">Tümü</a></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-filter=\"yüksek ilişki\">Yüksek İlişki</a></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-filter=\"orta ilişki\">Orta İlişki</a></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-filter=\"düşük ilişki\">Düşük İlişki</a></li>
+                            <li><hr class=\"dropdown-divider\"></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-sort=\"relationScore\">İlişki Skoruna Göre Sırala</a></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-sort=\"name\">İsme Göre Sırala</a></li>
+                            <li><a class=\"dropdown-item\" href=\"#\" data-sort=\"lastAnalyzed\">Analiz Tarihine Göre Sırala</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class=\"row\" id=\"companies-container\">
+                <div class=\"col-12 text-center py-5\">
+                    <div class=\"spinner-border text-secondary\" role=\"status\">
+                        <span class=\"visually-hidden\">Yükleniyor...</span>
+                    </div>
+                    <p class=\"mt-2\">Şirket verileri yükleniyor...</p>
+                </div>
+            </div>
+
+            <div class=\"text-center mt-4\">
+                <button class=\"btn btn-outline-primary\" id=\"load-more-companies\">Daha Fazla Yükle</button>
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div id=\"analyze-section\" style=\"display: none;\">
+            <h2 class=\"mb-4\"><i class=\"bi bi-search\"></i> Şirket Analizi</h2>
+
+            <div class=\"card search-card\">
+                <div class=\"card-body\">
+                    <h5 class=\"card-title\">Yeni Şirket Analizi</h5>
+                    <p class=\"card-text\">Analiz etmek istediğiniz şirket adını girin ve ayarları belirleyin.</p>
+
+                    <form id=\"analyze-form\">
+                        <div class=\"mb-3\">
+                            <label for=\"company-name\" class=\"form-label\">Şirket Adı</label>
+                            <input type=\"text\" class=\"form-control\" id=\"company-name\" required>
+                        </div>
+
+                        <div class=\"row\">
+                            <div class=\"col-md-6\">
+                                <div class=\"mb-3\">
+                                    <label for=\"year-from\" class=\"form-label\">Başlangıç Yılı</label>
+                                    <input type=\"number\" class=\"form-control\" id=\"year-from\" value=\"2002\" min=\"2000\" max=\"2025\">
+                                </div>
+                            </div>
+                            <div class=\"col-md-6\">
+                                <div class=\"mb-3\">
+                                    <label for=\"year-to\" class=\"form-label\">Bitiş Yılı</label>
+                                    <input type=\"number\" class=\"form-control\" id=\"year-to\" value=\"2025\" min=\"2000\" max=\"2025\">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class=\"mb-3\">
+                            <label for=\"detail-level\" class=\"form-label\">Detay Seviyesi</label>
+                            <select class=\"form-select\" id=\"detail-level\">
+                                <option value=\"basic\">Temel</option>
+                                <option value=\"detailed\" selected>Detaylı</option>
+                                <option value=\"comprehensive\">Kapsamlı</option>
+                            </select>
+                        </div>
+
+                        <div class=\"mb-3 form-check\">
+                            <input type=\"checkbox\" class=\"form-check-input\" id=\"include-individuals\" checked>
+                            <label class=\"form-check-label\" for=\"include-individuals\">Şirket yöneticilerini dahil et</label>
+                        </div>
+
+                        <button type=\"submit\" class=\"btn btn-danger\">Analiz Et</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id=\"analysis-result\" style=\"display: none;\" class=\"mt-4\">
+                <div class=\"card\">
+                    <div class=\"card-header\">
+                        <ul class=\"nav nav-tabs card-header-tabs\" id=\"analysis-tabs\">
+                            <li class=\"nav-item\">
+                                <a class=\"nav-link active\" data-bs-toggle=\"tab\" href=\"#summary-tab\">Özet</a>
+                            </li>
+                            <li class=\"nav-item\">
+                                <a class=\"nav-link\" data-bs-toggle=\"tab\" href=\"#events-tab\">Önemli Olaylar</a>
+                            </li>
+                            <li class=\"nav-item\">
+                                <a class=\"nav-link\" data-bs-toggle=\"tab\" href=\"#people-tab\">Kilit Kişiler</a>
+                            </li>
+                            <li class=\"nav-item\">
+                                <a class=\"nav-link\" data-bs-toggle=\"tab\" href=\"#connections-tab\">Bağlantılar</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class=\"card-body\">
+                        <div class=\"tab-content\">
+                            <div class=\"tab-pane fade show active\" id=\"summary-tab\">
+                                <h3 id=\"result-company-name\"></h3>
+                                <div class=\"d-flex align-items-center mb-3\">
+                                    <span class=\"me-2\">İlişki Skoru:</span>
+                                    <div class=\"progress flex-grow-1\" style=\"height: 20px;\">
+                                        <div id=\"result-score-bar\" class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"10\"></div>
+                                    </div>
+                                    <span id=\"result-score\" class=\"ms-2 relation-score\">0/10</span>
+                                </div>
+                                <p id=\"result-summary\" class=\"mt-4\"></p>
+                                <div class=\"mt-3\">
+                                    <small class=\"text-muted\">
+                                        İncelenen Haber Sayısı: <span id=\"result-news-count\">0</span> | 
+                                        Analiz Tarihi: <span id=\"result-date\">-</span>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class=\"tab-pane fade\" id=\"events-tab\">
+                                <h4 class=\"mb-3\">Önemli Olaylar</h4>
+                                <ul class=\"list-group\" id=\"result-events\">
+                                    <li class=\"list-group-item text-center\">Veri bulunamadı</li>
+                                </ul>
+                            </div>
+                            <div class=\"tab-pane fade\" id=\"people-tab\">
+                                <h4 class=\"mb-3\">Kilit Kişiler</h4>
+                                <ul class=\"list-group\" id=\"result-people\">
+                                    <li class=\"list-group-item text-center\">Veri bulunamadı</li>
+                                </ul>
+                            </div>
+                            <div class=\"tab-pane fade\" id=\"connections-tab\">
+                                <div class=\"row\">
+                                    <div class=\"col-md-6\">
+                                        <h4 class=\"mb-3\">Hükümet Bağlantıları</h4>
+                                        <ul class=\"list-group\" id=\"result-government\">
+                                            <li class=\"list-group-item text-center\">Veri bulunamadı</li>
+                                        </ul>
+                                    </div>
+                                    <div class=\"col-md-6\">
+                                        <h4 class=\"mb-3\">AKP Bağlantıları</h4>
+                                        <ul class=\"list-group\" id=\"result-akp\">
+                                            <li class=\"list-group-item text-center\">Veri bulunamadı</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=\"card-footer text-center\">
+                        <button class=\"btn btn-secondary\" id=\"generate-report\">Rapor Oluştur</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div id=\"search-section\" style=\"display: none;\">
+            <h2 class=\"mb-4\"><i class=\"bi bi-newspaper\"></i> Haber Araması</h2>
+
+            <div class=\"card search-card\">
+                <div class=\"card-body\">
+                    <h5 class=\"card-title\">Haber Ara</h5>
+                    <p class=\"card-text\">Türk haber kaynaklarında arama yapmak için aşağıdaki formu doldurun.</p>
+
+                    <form id=\"search-form\">
+                        <div class=\"mb-3\">
+                            <label for=\"search-query\" class=\"form-label\">Arama Sorgusu</label>
+                            <input type=\"text\" class=\"form-control\" id=\"search-query\" required>
+                        </div>
+
+                        <div class=\"mb-3\">
+                            <label for=\"search-sources\" class=\"form-label\">Haber Kaynakları</label>
+                            <select class=\"form-select\" id=\"search-sources\" multiple>
+                                <option value=\"Hürriyet\">Hürriyet</option>
+                                <option value=\"Milliyet\">Milliyet</option>
+                                <option value=\"Cumhuriyet\">Cumhuriyet</option>
+                                <option value=\"Sabah\">Sabah</option>
+                                <option value=\"HaberTürk\">HaberTürk</option>
+                                <option value=\"Sözcü\">Sözcü</option>
+                                <option value=\"T24\">T24</option>
+                                <option value=\"Dünya\">Dünya</option>
+                                <option value=\"Bloomberg HT\">Bloomberg HT</option>
+                            </select>
+                            <div class=\"form-text\">Birden fazla kaynak seçmek için Ctrl tuşuna basılı tutun.</div>
+                        </div>
+
+                        <div class=\"row\">
+                            <div class=\"col-md-6\">
+                                <div class=\"mb-3\">
+                                    <label for=\"date-from\" class=\"form-label\">Başlangıç Tarihi</label>
+                                    <input type=\"date\" class=\"form-control\" id=\"date-from\">
+                                </div>
+                            </div>
+                            <div class=\"col-md-6\">
+                                <div class=\"mb-3\">
+                                    <label for=\"date-to\" class=\"form-label\">Bitiş Tarihi</label>
+                                    <input type=\"date\" class=\"form-control\" id=\"date-to\">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class=\"mb-3\">
+                            <label for=\"search-limit\" class=\"form-label\">Maksimum Sonuç Sayısı</label>
+                            <input type=\"number\" class=\"form-control\" id=\"search-limit\" min=\"1\" max=\"50\" value=\"10\">
+                        </div>
+
+                        <button type=\"submit\" class=\"btn btn-primary\">Ara</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id=\"search-results\" class=\"mt-4\">
+                <!-- Search results will be displayed here -->
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div id=\"about-section\" style=\"display: none;\">
+            <h2 class=\"mb-4\"><i class=\"bi bi-info-circle\"></i> Hakkında</h2>
+
+            <div class=\"card\">
+                <div class=\"card-body\">
+                    <h3>Türk Şirket Hükümet İlişkileri Analiz Projesi</h3>
+                    <p class=\"lead\">Bu proje, Türk şirketlerinin hükümet ve AKP ile ilişkilerini son 20 yıla ait haber verilerine dayanarak analiz etmektedir.</p>
+
+                    <h4 class=\"mt-4\">Proje Hakkında</h4>
+                    <p>
+                        Bu uygulama, Türkiye'deki büyük şirketlerin hükümet ve iktidar partisi AKP ile olan ilişkilerini, haber medyasında yayınlanan içeriklere dayanarak analiz eder. 
+                        Toplanan haber verileri üzerinde doğal dil işleme teknikleri kullanılarak şirketlerin ilişki skorları hesaplanır ve önemli bağlantılar ortaya çıkarılır.
+                    </p>
+
+                    <h4 class=\"mt-4\">Metodoloji</h4>
+                    <p>
+                        Analiz metodolojimiz aşağıdaki adımları içerir:
+                    </p>
+                    <ol>
+                        <li>Türk haber kaynaklarından şirket ile ilgili haberlerin toplanması</li>
+                        <li>Haber içeriklerinde hükümet ve AKP ile ilgili anahtar kelimelerin tespit edilmesi</li>
+                        <li>İlişki skorunun algoritmik olarak hesaplanması</li>
+                        <li>Önemli olayların ve kilit kişilerin belirlenmesi</li>
+                        <li>Hükümet ve parti bağlantılarının çıkarılması</li>
+                    </ol>
+
+                    <h4 class=\"mt-4\">Veri Kaynakları</h4>
+                    <p>
+                        Analiz için kullanılan veriler aşağıdaki Türk haber kaynaklarından toplanmaktadır:
+                    </p>
+                    <ul>
+                        <li>Hürriyet</li>
+                        <li>Milliyet</li>
+                        <li>Cumhuriyet</li>
+                        <li>Sabah</li>
+                        <li>HaberTürk</li>
+                        <li>Sözcü</li>
+                        <li>T24</li>
+                        <li>Dünya</li>
+                        <li>Bloomberg HT</li>
+                    </ul>
+
+                    <h4 class=\"mt-4\">Teknolojiler</h4>
+                    <p>
+                        Bu projede kullanılan temel teknolojiler:
+                    </p>
+                    <ul>
+                        <li>Node.js ve Express</li>
+                        <li>MCP protokolü ile LLM entegrasyonu</li>
+                        <li>Puppeteer ve Firecrawl ile web kazıma</li>
+                        <li>LowDB ile yerel veri depolama</li>
+                        <li>Doğal dil işleme</li>
+                        <li>Türkçe dil analizi</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class=\"footer mt-5\">
+        <div class=\"container text-center\">
+            <p>© 2025 Türk Şirket Hükümet İlişkileri Analiz Projesi</p>
+            <p>
+                <small>Bu uygulama akademik ve araştırma amaçları için geliştirilmiştir.</small>
+            </p>
+        </div>
+    </footer>
+
+    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js\"></script>
+    <script>
+        // Document ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation
+            document.getElementById('nav-companies').addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('companies');
+                setActiveNav(this);
+                loadCompanies();
+            });
+
+            document.getElementById('nav-analyze').addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('analyze');
+                setActiveNav(this);
+            });
+
+            document.getElementById('nav-search').addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('search');
+                setActiveNav(this);
+            });
+
+            document.getElementById('nav-about').addEventListener('click', function(e) {
+                e.preventDefault();
+                showSection('about');
+                setActiveNav(this);
+            });
+
+            // Load companies on page load
+            loadCompanies();
+
+            // Analyze form submission
+            document.getElementById('analyze-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                analyzeCompany();
+            });
+
+            // Search form submission
+            document.getElementById('search-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                searchNews();
+            });
+
+            // Generate report button
+            document.getElementById('generate-report').addEventListener('click', function() {
+                generateReport();
+            });
+
+            // Company filter input
+            document.getElementById('company-filter').addEventListener('input', function() {
+                filterCompanies(this.value);
+            });
+
+            // Filter dropdown items
+            document.querySelectorAll('[data-filter]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const filter = this.getAttribute('data-filter');
+                    document.getElementById('company-filter').value = filter;
+                    filterCompanies(filter);
+                });
+            });
+
+            // Sort dropdown items
+            document.querySelectorAll('[data-sort]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sortBy = this.getAttribute('data-sort');
+                    sortCompanies(sortBy);
+                });
+            });
+
+            // Load more companies button
+            document.getElementById('load-more-companies').addEventListener('click', function() {
+                loadMoreCompanies();
+            });
+        });
+
+        // Show section and hide others
+        function showSection(sectionName) {
+            document.getElementById('companies-section').style.display = sectionName === 'companies' ? 'block' : 'none';
+            document.getElementById('analyze-section').style.display = sectionName === 'analyze' ? 'block' : 'none';
+            document.getElementById('search-section').style.display = sectionName === 'search' ? 'block' : 'none';
+            document.getElementById('about-section').style.display = sectionName === 'about' ? 'block' : 'none';
+        }
+
+        // Set active navigation item
+        function setActiveNav(navItem) {
+            document.querySelectorAll('.nav-link').forEach(item => {
+                item.classList.remove('active');
+            });
+            navItem.classList.add('active');
+        }
+
+        // Show loading indicator
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        // Hide loading indicator
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'danger') {
+            const alertContainer = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\" aria-label=\"Close\"></button>
+            `;
+            alertContainer.appendChild(alert);
+
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        }
+
+        // Global variables for pagination
+        let currentPage = 1;
+        let companiesPerPage = 9;
+        let totalCompanies = 0;
+        let allCompanies = [];
+
+        // Load companies
+        function loadCompanies() {
+            showLoading();
+
+            // Reset pagination
+            currentPage = 1;
+
+            fetch('/api/companies')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Şirket verileri alınamadı');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    allCompanies = data;
+                    totalCompanies = data.length;
+
+                    // Display companies
+                    displayCompanies(data.slice(0, companiesPerPage));
+
+                    // Show/hide load more button
+                    document.getElementById('load-more-companies').style.display = 
+                        data.length > companiesPerPage ? 'block' : 'none';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Şirket verileri yüklenirken bir hata oluştu: ' + error.message);
+                    document.getElementById('companies-container').innerHTML = `
+                        <div class=\"col-12 text-center py-5\">
+                            <div class=\"alert alert-danger\">
+                                <i class=\"bi bi-exclamation-triangle-fill\"></i> Veri yüklenemedi. Lütfen daha sonra tekrar deneyin.
+                            </div>
+                        </div>
+                    `;
+                })
+                .finally(() => {
+                    hideLoading();
+                });
+        }
+
+        // Display companies in the container
+        function displayCompanies(companies) {
+            const container = document.getElementById('companies-container');
+
+            if (currentPage === 1) {
+                container.innerHTML = '';
+            }
+
+            if (companies.length === 0) {
+                container.innerHTML = `
+                    <div class=\"col-12 text-center py-5\">
+                        <div class=\"alert alert-info\">
+                            <i class=\"bi bi-info-circle-fill\"></i> Hiç şirket bulunamadı.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            companies.forEach(company => {
+                // Determine badge class based on relation score
+                let badgeClass = 'badge-low';
+                if (company.relationScore >= 7) {
+                    badgeClass = 'badge-high';
+                } else if (company.relationScore >= 4) {
+                    badgeClass = 'badge-medium';
+                }
+
+                const companyCard = document.createElement('div');
+                companyCard.className = 'col-md-4';
+                companyCard.innerHTML = `
+                    <div class=\"card h-100\">
+                        <div class=\"card-body\">
+                            <h5 class=\"card-title\">${company.name}</h5>
+                            <div class=\"d-flex align-items-center mb-3\">
+                                <div class=\"me-2\">İlişki Skoru:</div>
+                                <span class=\"badge ${badgeClass} ms-auto\">${company.relationScore}/10</span>
+                            </div>
+                            <p class=\"card-text\">${company.summary.substring(0, 150)}${company.summary.length > 150 ? '...' : ''}</p>
+                        </div>
+                        <div class=\"card-footer d-flex justify-content-between align-items-center\">
+                            <small class=\"text-muted\">Analiz: ${company.lastAnalyzed}</small>
+                            <button class=\"btn btn-sm btn-outline-danger view-company\" data-company=\"${company.name}\">
+                                Detaylar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(companyCard);
+
+                // Add event listener to view button
+                companyCard.querySelector('.view-company').addEventListener('click', function() {
+                    const companyName = this.getAttribute('data-company');
+                    viewCompanyDetails(companyName);
+                });
+            });
+        }
+
+        // Load more companies
+        function loadMoreCompanies() {
+            currentPage++;
+            const startIndex = (currentPage - 1) * companiesPerPage;
+            const endIndex = startIndex + companiesPerPage;
+
+            const nextCompanies = allCompanies.slice(startIndex, endIndex);
+            displayCompanies(nextCompanies);
+
+            // Hide button if no more companies
+            if (endIndex >= totalCompanies) {
+                document.getElementById('load-more-companies').style.display = 'none';
+            }
+        }
+
+        // Filter companies
+        function filterCompanies(filterText) {
+            const filteredCompanies = allCompanies.filter(company => {
+                if (!filterText) return true;
+
+                // Handle special filters
+                if (filterText === 'yüksek ilişki') {
+                    return company.relationScore >= 7;
+                } else if (filterText === 'orta ilişki') {
+                    return company.relationScore >= 4 && company.relationScore < 7;
+                        } else if (filterText === 'düşük ilişki') {
+                            return company.relationScore < 4;
+                        }
+
+                        // Text-based filtering
+                        return company.name.toLowerCase().includes(filterText.toLowerCase()) || 
+                               company.summary.toLowerCase().includes(filterText.toLowerCase());
+                    });
+
+                    // Reset pagination and display filtered companies
+                    currentPage = 1;
+                    displayCompanies(filteredCompanies.slice(0, companiesPerPage));
+                    totalCompanies = filteredCompanies.length;
+
+                    // Update load more button
+                    document.getElementById('load-more-companies').style.display = 
+                        filteredCompanies.length > companiesPerPage ? 'block' : 'none';
+                    }
+
+                    // Sort companies
+                    function sortCompanies(sortBy) {
+                    let sortedCompanies = [...allCompanies];
+
+                    switch (sortBy) {
+                        case 'relationScore':
+                            sortedCompanies.sort((a, b) => b.relationScore - a.relationScore);
+                            break;
+                        case 'name':
+                            sortedCompanies.sort((a, b) => a.name.localeCompare(b.name));
+                            break;
+                        case 'lastAnalyzed':
+                            sortedCompanies.sort((a, b) => new Date(b.lastAnalyzed) - new Date(a.lastAnalyzed));
+                            break;
+                    }
+
+                    // Reset pagination and display sorted companies
+                    currentPage = 1;
+                    displayCompanies(sortedCompanies.slice(0, companiesPerPage));
+                    allCompanies = sortedCompanies;
+
+                    // Update load more button
+                    document.getElementById('load-more-companies').style.display = 
+                        allCompanies.length > companiesPerPage ? 'block' : 'none';
+                    }
+
+                    // View company details
+                    function viewCompanyDetails(companyName) {
+                    // Switch to analyze section
+                    showSection('analyze');
+                    setActiveNav(document.getElementById('nav-analyze'));
+
+                    // Set company name in form
+                    document.getElementById('company-name').value = companyName;
+
+                    // Submit form to analyze the company
+                    analyzeCompany();
+                    }
+
+                    // Analyze company
+                    function analyzeCompany() {
+                    const companyName = document.getElementById('company-name').value.trim();
+
+                    if (!companyName) {
+                        showAlert('Lütfen bir şirket adı girin.');
+                        return;
+                    }
+
+                    showLoading();
+
+                    // Get form values
+                    const yearFrom = document.getElementById('year-from').value;
+                    const yearTo = document.getElementById('year-to').value;
+                    const detailLevel = document.getElementById('detail-level').value;
+                    const includeIndividuals = document.getElementById('include-individuals').checked;
+
+                    // Prepare request body
+                    const requestBody = {
+                        company: companyName,
+                        yearRange: {
+                            from: parseInt(yearFrom),
+                            to: parseInt(yearTo)
+                        },
+                        detailLevel: detailLevel,
+                        includeIndividuals: includeIndividuals
+                    };
+
+                    // Make API request
+                    fetch('/api/analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Analiz yapılırken bir hata oluştu.');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayAnalysisResult(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showAlert('Analiz işlemi sırasında bir hata oluştu: ' + error.message);
+                    })
+                    .finally(() => {
+                        hideLoading();
+                    });
+                    }
+
+                    // Display analysis result
+                    function displayAnalysisResult(result) {
+                    // Show result section
+                    document.getElementById('analysis-result').style.display = 'block';
+
+                    // Update summary tab
+                    document.getElementById('result-company-name').textContent = result.companyName;
+                    document.getElementById('result-score').textContent = `${result.relationScore}/10`;
+                    document.getElementById('result-score-bar').style.width = `${result.relationScore * 10}%`;
+                    document.getElementById('result-score-bar').setAttribute('aria-valuenow', result.relationScore);
+                    document.getElementById('result-summary').textContent = result.summary;
+                    document.getElementById('result-news-count').textContent = result.newsCount;
+                    document.getElementById('result-date').textContent = new Date(result.analyzedAt).toLocaleDateString('tr-TR');
+
+                    // Update events tab
+                    const eventsContainer = document.getElementById('result-events');
+                    if (result.keyEvents && result.keyEvents.length > 0) {
+                        eventsContainer.innerHTML = '';
+                        result.keyEvents.forEach(event => {
+                            const eventItem = document.createElement('li');
+                            eventItem.className = 'list-group-item';
+                            eventItem.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>${event.date}</strong>
+                                    <a href="${event.url}" target="_blank" class="btn btn-sm btn-outline-secondary">Kaynak: ${event.source}</a>
+                                </div>
+                                <h5 class="mt-2">${event.title}</h5>
+                                <p>${event.description || ''}</p>
+                            `;
+                            eventsContainer.appendChild(eventItem);
+                        });
+                    } else {
+                        eventsContainer.innerHTML = '<li class="list-group-item text-center">Önemli olay bulunamadı</li>';
+                    }
+
+                    // Update people tab
+                    const peopleContainer = document.getElementById('result-people');
+                    if (result.keyPeople && result.keyPeople.length > 0) {
+                        peopleContainer.innerHTML = '';
+                        result.keyPeople.forEach(person => {
+                            // Determine relation level badge
+                            let badgeClass = 'bg-secondary';
+                            if (person.relationLevel === 'Yüksek') {
+                                badgeClass = 'bg-danger';
+                            } else if (person.relationLevel === 'Orta') {
+                                badgeClass = 'bg-warning text-dark';
+                            }
+
+                            const personItem = document.createElement('li');
+                            personItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            personItem.innerHTML = `
+                                <div>
+                                    <strong>${person.name}</strong>
+                                    <div>${person.role}</div>
+                                </div>
+                                <span class="badge ${badgeClass}">${person.relationLevel}</span>
+                            `;
+                            peopleContainer.appendChild(personItem);
+                        });
+                    } else {
+                        peopleContainer.innerHTML = '<li class="list-group-item text-center">Kilit kişi bulunamadı</li>';
+                    }
+
+                    // Update government connections tab
+                    const governmentContainer = document.getElementById('result-government');
+                    if (result.governmentConnections && result.governmentConnections.length > 0) {
+                        governmentContainer.innerHTML = '';
+                        result.governmentConnections.forEach(connection => {
+                            const connectionItem = document.createElement('li');
+                            connectionItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            connectionItem.innerHTML = `
+                                <div>${connection.entity}</div>
+                                <span class="badge bg-primary rounded-pill">${connection.count} haberde geçiyor</span>
+                            `;
+                            governmentContainer.appendChild(connectionItem);
+                        });
+                    } else {
+                        governmentContainer.innerHTML = '<li class="list-group-item text-center">Hükümet bağlantısı bulunamadı</li>';
+                    }
+
+                    // Update AKP connections tab
+                    const akpContainer = document.getElementById('result-akp');
+                    if (result.akpConnections && result.akpConnections.length > 0) {
+                        akpContainer.innerHTML = '';
+                        result.akpConnections.forEach(connection => {
+                            const connectionItem = document.createElement('li');
+                            connectionItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            connectionItem.innerHTML = `
+                                <div>${connection.entity}</div>
+                                <span class="badge bg-danger rounded-pill">${connection.count} haberde geçiyor</span>
+                            `;
+                            akpContainer.appendChild(connectionItem);
+                        });
+                    } else {
+                        akpContainer.innerHTML = '<li class="list-group-item text-center">AKP bağlantısı bulunamadı</li>';
+                    }
+
+                    // Scroll to result
+                    document.getElementById('analysis-result').scrollIntoView({ behavior: 'smooth' });
+                    }
+
+                    // Generate report
+                    function generateReport() {
+                    const companyName = document.getElementById('result-company-name').textContent;
+
+                    if (!companyName) {
+                        showAlert('Önce bir şirket analizi yapmalısınız.');
+                        return;
+                    }
+
+                    showLoading();
+
+                    // Make API request
+                    fetch(`/api/reports/${encodeURIComponent(companyName)}?format=markdown&language=tr`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Rapor oluşturulurken bir hata oluştu.');
+                            }
+                            return response.text();
+                        })
+                        .then(data => {
+                            // Create a blob with the report data
+                            const blob = new Blob([data], { type: 'text/markdown' });
+                            const url = URL.createObjectURL(blob);
+
+                            // Create a temporary link and trigger download
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${companyName.replace(/\s+/g, '-').toLowerCase()}_rapor.md`;
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Clean up
+                            window.URL.revokeObjectURL(url);
+                            a.remove();
+
+                            showAlert('Rapor başarıyla oluşturuldu ve indirildi.', 'success');
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('Rapor oluşturulurken bir hata oluştu: ' + error.message);
+                        })
+                        .finally(() => {
+                            hideLoading();
+                        });
+                    }
+
+                    // Search news
+                    function searchNews() {
+                    const query = document.getElementById('search-query').value.trim();
+
+                    if (!query) {
+                        showAlert('Lütfen bir arama sorgusu girin.');
+                        return;
+                    }
+
+                    showLoading();
+
+                    // Get form values
+                    const sourcesSelect = document.getElementById('search-sources');
+                    const sources = Array.from(sourcesSelect.selectedOptions).map(option => option.value).join(',');
+                    const dateFrom = document.getElementById('date-from').value;
+                    const dateTo = document.getElementById('date-to').value;
+                    const limit = document.getElementById('search-limit').value;
+
+                    // Build query string
+                    let queryParams = `query=${encodeURIComponent(query)}`;
+                    if (sources) queryParams += `&sources=${encodeURIComponent(sources)}`;
+                    if (dateFrom) queryParams += `&from=${encodeURIComponent(dateFrom)}`;
+                    if (dateTo) queryParams += `&to=${encodeURIComponent(dateTo)}`;
+                    if (limit) queryParams += `&limit=${encodeURIComponent(limit)}`;
+
+                    // Make API request
+                    fetch(`/api/news/search?${queryParams}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Haber araması yapılırken bir hata oluştu.');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            displaySearchResults(data, query);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('Haber araması sırasında bir hata oluştu: ' + error.message);
+                            document.getElementById('search-results').innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> Arama yapılırken bir hata oluştu: ${error.message}
+                                </div>
+                            `;
+                        })
+                        .finally(() => {
+                            hideLoading();
+                        });
+                    }
+
+                    // Display search results
+                    function displaySearchResults(results, query) {
+                    const container = document.getElementById('search-results');
+
+                    if (results.length === 0) {
+                        container.innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill"></i> "${query}" için sonuç bulunamadı.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = `
+                        <h3>Arama Sonuçları: "${query}"</h3>
+                        <p class="text-muted">Toplam ${results.length} sonuç bulundu.</p>
+                        <div class="list-group" id="search-results-list"></div>
+                    `;
+
+                    const resultsList = document.getElementById('search-results-list');
+
+                    results.forEach(article => {
+                        const resultItem = document.createElement('a');
+                        resultItem.className = 'list-group-item list-group-item-action';
+                        resultItem.href = article.url;
+                        resultItem.target = '_blank';
+                        resultItem.innerHTML = `
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">${article.title}</h5>
+                                <small>${new Date(article.date).toLocaleDateString('tr-TR')}</small>
+                            </div>
+                            <p class="mb-1">${article.summary || 'Özet bulunmuyor.'}</p>
+                            <small class="text-muted">Kaynak: ${article.source}</small>
+                        `;
+                        resultsList.appendChild(resultItem);
+                    });
+                    }
+                    </script>
+                    </body>
+                    </html>
