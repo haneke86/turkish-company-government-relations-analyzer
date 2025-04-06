@@ -1,0 +1,44 @@
+{
+  "name": "turkish-company-government-relations-analyzer",
+  "version": "1.0.0",
+  "description": "An application for analyzing Turkish companies' relationships with the government and AKP party based on news data from the past 20 years.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "mcp": "node src/mcp-server/index.js",
+    "scrape": "node src/tasks/scrape-sources.js",
+    "analyze": "node src/tasks/analyze-companies.js",
+    "report": "node src/tasks/generate-reports.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "turkey",
+    "news-analysis",
+    "government-relations",
+    "akp",
+    "companies",
+    "nlp",
+    "mcp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@mendable/firecrawl-js": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "lowdb": "^3.0.0",
+    "natural": "^6.5.0",
+    "openai": "^3.3.0",
+    "p-queue": "^7.3.4",
+    "puppeteer": "^20.9.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
