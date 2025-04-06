@@ -1,0 +1,124 @@
+# Turkish Company Government Relations Analyzer - AI Agent Rules
+# This file guides AI-assisted development for consistency and quality
+
+# Project Overview
+This is a Node.js application that analyzes Turkish companies' relationships with the Turkish government and AKP party based on news data spanning the past 20 years. The application uses web scraping, NLP, and data analysis to generate relationship scores and comprehensive reports.
+
+# Architecture
+- Node.js/Express backend
+- MCP protocol for LLM integration
+- ES Modules for import/export
+- Lowdb for local data storage
+- Bootstrap 5 frontend
+- RESTful API design
+
+# Code Style and Conventions
+
+## General
+- Use ES Modules syntax (import/export) not CommonJS (require)
+- Use async/await for asynchronous operations, not callbacks or raw promises
+- Destructure objects and arrays when appropriate
+- Use template literals for string interpolation
+- UTF-8 encoding for all files to support Turkish characters
+
+## Naming Conventions
+- camelCase for variables, functions, and methods
+- PascalCase for classes and components
+- UPPER_SNAKE_CASE for constants
+- kebab-case for file names
+- Use meaningful names in English for code elements and Turkish for UI text
+
+## File Structure
+- Keep related functionality in the same module
+- Organize routes by domain (companies, news, reports)
+- Place reusable utilities in separate files
+
+## JavaScript/Node.js
+- Use const for variables that won't be reassigned
+- Use let for variables that will be reassigned
+- Avoid var
+- Always include error handling in async functions
+- Use try/catch blocks for error handling
+- Always initialize variables before use
+- Add appropriate JSDoc comments for functions
+
+## Turkish Language Support
+- Use proper Turkish encoding and character handling
+- Properly handle Turkish-specific characters: İ, ı, Ğ, ğ, Ü, ü, Ş, ş, Ö, ö, Ç, ç
+- Use locale-aware string comparisons (localeCompare) for Turkish text
+
+## Database
+- Use Lowdb consistently for local data storage
+- Always validate data before storing
+- Include proper error handling for database operations
+- Use atomic operations when possible
+
+## Web Scraping
+- Respect robots.txt and website terms of service
+- Implement rate limiting for external requests
+- Add appropriate delays between requests
+- Use appropriate user agents
+- Implement caching to reduce repeated requests
+- Include proper error handling for network operations
+
+## API Design
+- Follow RESTful principles for API endpoints
+- Implement consistent error handling and status codes
+- Validate all request parameters
+- Return meaningful error messages
+- Use appropriate HTTP methods (GET, POST, PUT, DELETE)
+
+## Security
+- Sanitize user inputs to prevent injection attacks
+- Validate all request parameters
+- Don't expose sensitive information in error messages
+- Use environment variables for sensitive configuration
+- Don't commit .env files or sensitive keys to version control
+
+## Documentation
+- Document all API endpoints
+- Include JSDoc comments for functions
+- Add inline comments for complex logic
+- Keep README up to date
+
+## Testing
+- Write unit tests for critical functionality
+- Test edge cases and error conditions
+- Include Turkish language specific test cases
+
+# Reference Files
+@file README.md
+@file src/lib/company-analyzer.js
+@file src/lib/news-manager.js
+@file src/lib/report-generator.js
+
+# MCP Server Integration
+- Follow MCP protocol specifications
+- Implement proper error handling for LLM requests
+- Handle token limitations appropriately
+- Cache responses when appropriate
+
+# Turkish News Source Handling
+- Support all major Turkish news sources
+- Implement source-specific parsers
+- Handle source-specific date formats
+- Respect rate limits for each source
+
+# Report Generation
+- Generate all reports in proper Turkish
+- Support multiple formats (text, markdown, JSON)
+- Include proper attribution for sources
+- Format dates according to Turkish conventions
+
+# Data Analysis
+- Implement proper Turkish NLP techniques
+- Handle Turkish stemming and lemmatization correctly
+- Account for Turkish grammar and syntax in analysis
+- Use domain-specific terminology for government relations
+
+# Frontend Development
+- Use semantic HTML
+- Implement responsive design
+- Ensure accessibility
+- Include proper Turkish language support
+- Optimize for performance
